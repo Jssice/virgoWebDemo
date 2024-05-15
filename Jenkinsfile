@@ -12,13 +12,13 @@ pipeline {
                 git 'https://github.com/Jssice/virgoWebDemo.git'
             }
         }
-        stage('Install Nginx') {
+        stage('Install Git & Nginx') {
             steps {
-                // Install Nginx on the Azure VM
+                // Install Git & Nginx on the Azure VM
                 sh """
                 ssh -o StrictHostKeyChecking=no adam.jia@nexushub.onmicrosoft.com@http://20.205.168.65 '
                 sudo apt update
-                sudo apt install nginx -y
+                sudo apt install git nginx -y
                 sudo systemctl start nginx
                 sudo systemctl enable nginx
                 exit
