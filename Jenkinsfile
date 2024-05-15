@@ -6,12 +6,7 @@ pipeline {
 
 
     stages {
-        stage('Clone Repository') {
-            steps {
-                // Clone the Git repository
-                git 'https://github.com/Jssice/virgoWebDemo.git'
-            }
-        }
+        
         stage('Install Git & Nginx') {
             steps {
                 // Install Git & Nginx on the Azure VM
@@ -24,6 +19,12 @@ pipeline {
                 exit
                 '
                 """
+            }
+        }
+        stage('Clone Repository') {
+            steps {
+                // Clone the Git repository
+                git 'https://github.com/Jssice/virgoWebDemo.git'
             }
         }
         stage('Build') {
