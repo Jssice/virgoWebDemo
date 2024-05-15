@@ -1,31 +1,71 @@
 pipeline {
     agent any
+    environment {
+        DEPLOY_DIR = '/var/www/html' // Nginx default document root
+    }
+
+
     stages {
-        stage('Checkout') {
+        stage('Clone Repository') {
             steps {
-                checkout scm
+                // Clone the Git repository
+                git 'https://github.com/Jssice/virgoWebDemo.git'
+            }
+        }
+        stage('Install Nginx') {
+            steps {
+                // Install Nginx on the Azure VM
+                sh """
+                ssh -o StrictHostKeyChecking=no azure-user@your-vm-ip '
+                sudo apt update
+                sudo apt install nginx -y
+                sudo systemctl start nginx
+                sudo systemctl enable nginx
+                exit
+                '
+                """
             }
         }
         stage('Build') {
             steps {
-                echo 'Building...'
-                // 在这里添加构建步骤，例如：编译代码
+                // Add build steps if any (e.g., npm install for Node.js projects)
+                echo 'Building the project...'
             }
         }
-        stage('Deploy to Dev') {
+        stage('Test') {
             steps {
-                echo 'Deploying...'
-                // 在这里添加部署步骤，例如：使用SSH部署到Azure VM
-                sshagent(['<YOUR_SSH_CREDENTIAL_ID>']) {
-                    sh '''
-                    ssh -o StrictHostKeyChecking=no user@<YOUR_VM_IP> << EOF
-                    cd /path/to/your/app
-                    git pull origin main
-                    # 在这里添加重启服务或其他部署操作
-                    EOF
-                    '''
-                }
+                // Add test steps if any (e.g., npm test for Node.js projects)
+                echo 'Running tests...'
             }
+        }
+        stage('Deploy') {
+            steps {
+                // Add deployment steps
+                // Default ${DEPLOY_DIR} is /var/www/html
+                //adam.jia@nexushub.onmicrosoft.com@http://20.205.168.65
+                echo 'Deploying the project...'
+                sh """
+                ssh -o StrictHostKeyChecking=no adam.jia@nexushub.onmicrosoft.com@http://20.205.168.65 '
+                sudo rm -rf ${DEPLOY_DIR}/*
+                sudo mkdir -p ${DEPLOY_DIR}
+                exit
+                '
+                scp -o StrictHostKeyChecking=no -r * adam.jia@nexushub.onmicrosoft.com@http://20.205.168.65:${DEPLOY_DIR}
+                ssh -o StrictHostKeyChecking=no adam.jia@nexushub.onmicrosoft.com@http://20.205.168.65 '
+                sudo systemctl restart nginx
+                exit
+                '
+                """
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed.'
         }
     }
 }
