@@ -16,7 +16,7 @@ pipeline {
             steps {
                 // Install Nginx on the Azure VM
                 sh """
-                ssh -o StrictHostKeyChecking=no azure-user@your-vm-ip '
+                ssh -o StrictHostKeyChecking=no adam.jia@nexushub.onmicrosoft.com@http://20.205.168.65 '
                 sudo apt update
                 sudo apt install nginx -y
                 sudo systemctl start nginx
